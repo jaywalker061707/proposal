@@ -727,13 +727,18 @@ function renderPlansEditor() {
 
   // plan-level fields (label, term, note, enabled, current)
   container.querySelectorAll("[data-i][data-f]").forEach(el => {
-    const evt = (el.tagName === "SELECT" || el.type === "checkbox") ? "change" : "input";
+    const isCheckbox = el.type === "checkbox";
+    const evt = (el.tagName === "SELECT" || isCheckbox) ? "change" : "input";
     el.addEventListener(evt, () => {
       const i = Number(el.dataset.i);
       const f = el.dataset.f;
-      state.plans[i][f] = el.type === "checkbox" ? el.checked : el.value;
+      state.plans[i][f] = isCheckbox ? el.checked : el.value;
       saveState();
-      renderPlansEditor();
+      // Only checkboxes (enabled/current) need to rebuild this panel, to
+      // update the "disabled" dimming and badge state. Rebuilding on every
+      // keystroke in a text field destroys and recreates the input,
+      // which steals focus after each character typed.
+      if (isCheckbox) renderPlansEditor();
       render();
     });
   });
