@@ -465,6 +465,16 @@
           <input type="date" id="propDate">
         </div>
       </div>
+      <div class="row2">
+        <div>
+          <label>Contact Email (optional)</label>
+          <input type="email" id="custEmail" placeholder="john@business.com">
+        </div>
+        <div>
+          <label>Contact Phone (optional)</label>
+          <input type="tel" id="custPhone" placeholder="(555) 555-1234">
+        </div>
+      </div>
       <label>Customer Type</label>
       <select id="custType">
         <option value="new">New Customer</option>
@@ -483,7 +493,7 @@
       <textarea id="notes" placeholder="e.g. Pricing valid for 30 days. Installation fees waived for new agreements."></textarea>
     </fieldset>
 
-    <button class="btn" onclick="window.print()">Print / Save as PDF</button>
+    <button class="btn" onclick="printProposal()">Print / Save as PDF</button>
   </div>
 
   <!-- ============ LIVE PREVIEW ============ -->
@@ -496,15 +506,17 @@
 const STORAGE_KEY = "proposalGenState_v1";
 
 const defaultState = {
-  companyName: "Comcast Business",
+  companyName: "",
   logoDataUrl: "",
-  repName: "Jay McIntyre",
-  repTitle: "Sr. Business Account Executive",
-  repEmail: "james_mcintyre2@comcast.com",
-  repPhone: "814-907-2557",
+  repName: "",
+  repTitle: "",
+  repEmail: "",
+  repPhone: "",
   accentColor: "#0057FF",
   custName: "",
   custContact: "",
+  custEmail: "",
+  custPhone: "",
   propDate: new Date().toISOString().slice(0,10),
   custType: "new",
   notes: "",
@@ -585,6 +597,8 @@ function initEditor() {
   document.getElementById("accentColor").value = state.accentColor;
   document.getElementById("custName").value = state.custName;
   document.getElementById("custContact").value = state.custContact;
+  document.getElementById("custEmail").value = state.custEmail;
+  document.getElementById("custPhone").value = state.custPhone;
   document.getElementById("propDate").value = state.propDate;
   document.getElementById("custType").value = state.custType;
   document.getElementById("notes").value = state.notes;
@@ -595,7 +609,7 @@ function initEditor() {
     img.style.display = "block";
   }
 
-  const simpleFields = ["companyName","repName","repTitle","repEmail","repPhone","custName","custContact","propDate","custType","notes"];
+  const simpleFields = ["companyName","repName","repTitle","repEmail","repPhone","custName","custContact","custEmail","custPhone","propDate","custType","notes"];
   simpleFields.forEach(id => {
     document.getElementById(id).addEventListener("input", () => {
       state[id] = document.getElementById(id).value;
@@ -839,6 +853,7 @@ function render() {
       <div class="customer-box">
         <div class="cust-name">${esc(state.custName) || "Customer Name"}</div>
         ${state.custContact ? `Attn: ${esc(state.custContact)}<br>` : ""}
+        ${(state.custEmail || state.custPhone) ? `${esc(state.custEmail)}${(state.custEmail && state.custPhone) ? " &nbsp;|&nbsp; " : ""}${esc(state.custPhone)}<br>` : ""}
         ${custTypeLabel}
       </div>
 
@@ -858,6 +873,18 @@ function render() {
 
   document.getElementById("proposal").innerHTML = html;
 }
+
+const ORIGINAL_TITLE = document.title;
+
+function printProposal() {
+  const name = (state.custName || "").trim().replace(/[\\/:*?"<>|]/g, "-");
+  document.title = (name || "Proposal") + " Proposal";
+  window.print();
+}
+
+window.addEventListener("afterprint", () => {
+  document.title = ORIGINAL_TITLE;
+});
 
 initEditor();
 render();
