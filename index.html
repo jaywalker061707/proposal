@@ -434,7 +434,7 @@
     <p class="hint">Fill this in, review the preview on the right, then click Print / Save as PDF. Your company info is saved automatically for next time.</p>
 
     <fieldset>
-      <legend>Your Company</legend>
+      <legend>Company Branding</legend>
       <label>Company Name</label>
       <input type="text" id="companyName" placeholder="Your Company LLC">
 
@@ -443,25 +443,24 @@
       <img id="logoPreview" class="logo-preview" style="display:none">
       <div class="small-note"><button type="button" class="btn secondary" id="clearLogo" style="margin-top:6px;">Remove logo</button></div>
 
-      <div class="row2">
-        <div>
-          <label>Rep / Contact Name</label>
-          <input type="text" id="repName" placeholder="Jane Smith">
-        </div>
-        <div>
-          <label>Accent Color</label>
-          <input type="color" id="accentColor" value="#0057FF">
-        </div>
-      </div>
+      <label>Accent Color</label>
+      <input type="color" id="accentColor" value="#0057FF">
+    </fieldset>
+
+    <fieldset>
+      <legend>Your Contact Info</legend>
+      <p class="hint" style="margin-bottom:8px;">This appears under the company name/logo on every proposal you generate.</p>
+      <label>Your Name</label>
+      <input type="text" id="repName" placeholder="Jane Smith">
       <label>Job Title</label>
       <input type="text" id="repTitle" placeholder="Sr. Business Account Executive">
       <div class="row2">
         <div>
-          <label>Contact Email</label>
+          <label>Your Email</label>
           <input type="email" id="repEmail" placeholder="jane@company.com">
         </div>
         <div>
-          <label>Contact Phone</label>
+          <label>Your Phone</label>
           <input type="tel" id="repPhone" placeholder="(555) 555-1234">
         </div>
       </div>
