@@ -255,8 +255,24 @@
     margin-bottom: 28px;
     font-size: 13px;
     line-height: 1.6;
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
   .customer-box .cust-name { font-weight: 700; font-size: 14.5px; }
+  .cust-logo-box {
+    flex-shrink: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  .cust-logo-box img {
+    max-height: 34px;
+    max-width: 120px;
+    object-fit: contain;
+    display: block;
+  }
 
   .plans {
     display: flex;
@@ -455,6 +471,12 @@
       <legend>Customer</legend>
       <label>Customer / Business Name</label>
       <input type="text" id="custName" placeholder="Acme Diner">
+
+      <label>Customer Logo (optional)</label>
+      <input type="file" id="custLogoFile" accept="image/*">
+      <img id="custLogoPreview" class="logo-preview" style="display:none">
+      <div class="small-note"><button type="button" class="btn secondary" id="clearCustLogo" style="margin-top:6px;">Remove logo</button></div>
+
       <div class="row2">
         <div>
           <label>Contact Name (optional)</label>
@@ -506,7 +528,7 @@
 const STORAGE_KEY = "proposalGenState_v1";
 
 const defaultState = {
-  companyName: "",
+  companyName: "Comcast Business",
   logoDataUrl: "",
   repName: "",
   repTitle: "",
@@ -514,6 +536,7 @@ const defaultState = {
   repPhone: "",
   accentColor: "#0057FF",
   custName: "",
+  custLogoDataUrl: "",
   custContact: "",
   custEmail: "",
   custPhone: "",
@@ -603,12 +626,6 @@ function initEditor() {
   document.getElementById("custType").value = state.custType;
   document.getElementById("notes").value = state.notes;
 
-  if (state.logoDataUrl) {
-    const img = document.getElementById("logoPreview");
-    img.src = state.logoDataUrl;
-    img.style.display = "block";
-  }
-
   const simpleFields = ["companyName","repName","repTitle","repEmail","repPhone","custName","custContact","custEmail","custPhone","propDate","custType","notes"];
   simpleFields.forEach(id => {
     document.getElementById(id).addEventListener("input", () => {
@@ -622,27 +639,38 @@ function initEditor() {
     saveState(); render();
   });
 
-  document.getElementById("logoFile").addEventListener("change", e => {
+  setupLogoUpload("logoFile", "logoPreview", "clearLogo", "logoDataUrl");
+  setupLogoUpload("custLogoFile", "custLogoPreview", "clearCustLogo", "custLogoDataUrl");
+
+  renderPlansEditor();
+}
+
+function setupLogoUpload(fileId, previewId, clearId, stateKey) {
+  const preview = document.getElementById(previewId);
+  if (state[stateKey]) {
+    preview.src = state[stateKey];
+    preview.style.display = "block";
+  }
+
+  document.getElementById(fileId).addEventListener("change", e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
-      state.logoDataUrl = ev.target.result;
-      document.getElementById("logoPreview").src = state.logoDataUrl;
-      document.getElementById("logoPreview").style.display = "block";
+      state[stateKey] = ev.target.result;
+      preview.src = state[stateKey];
+      preview.style.display = "block";
       saveState(); render();
     };
     reader.readAsDataURL(file);
   });
 
-  document.getElementById("clearLogo").addEventListener("click", () => {
-    state.logoDataUrl = "";
-    document.getElementById("logoPreview").style.display = "none";
-    document.getElementById("logoFile").value = "";
+  document.getElementById(clearId).addEventListener("click", () => {
+    state[stateKey] = "";
+    preview.style.display = "none";
+    document.getElementById(fileId).value = "";
     saveState(); render();
   });
-
-  renderPlansEditor();
 }
 
 function itemRowEditHtml(planIndex, itemIndex, item) {
@@ -851,10 +879,13 @@ function render() {
 
     <div class="doc-body">
       <div class="customer-box">
-        <div class="cust-name">${esc(state.custName) || "Customer Name"}</div>
-        ${state.custContact ? `Attn: ${esc(state.custContact)}<br>` : ""}
-        ${(state.custEmail || state.custPhone) ? `${esc(state.custEmail)}${(state.custEmail && state.custPhone) ? " &nbsp;|&nbsp; " : ""}${esc(state.custPhone)}<br>` : ""}
-        ${custTypeLabel}
+        ${state.custLogoDataUrl ? `<div class="cust-logo-box"><img src="${state.custLogoDataUrl}" alt="customer logo"></div>` : ""}
+        <div>
+          <div class="cust-name">${esc(state.custName) || "Customer Name"}</div>
+          ${state.custContact ? `Attn: ${esc(state.custContact)}<br>` : ""}
+          ${(state.custEmail || state.custPhone) ? `${esc(state.custEmail)}${(state.custEmail && state.custPhone) ? " &nbsp;|&nbsp; " : ""}${esc(state.custPhone)}<br>` : ""}
+          ${custTypeLabel}
+        </div>
       </div>
 
       <div class="doc-section-title">${state.custType === "existing" ? "Current & Proposed Options" : "Proposed Options"}</div>
